@@ -45,6 +45,8 @@ async function comprobarPedido(page: Page, elegidos: Fila[]) {
   const total = elegidos.reduce((suma, p) => suma + precio(p)!, 0);
   await expect(page.locator('#pedido')).toBeVisible();
   await expect(page.locator('#pedido .total')).toHaveText(moneda(total));
+  // La cantidad cuenta versiones elegidas, no juegos (#23).
+  await expect(page.locator('#pedido .cuenta')).toHaveText(`${elegidos.length} ${elegidos.length === 1 ? 'artículo' : 'artículos'}`);
   // El orden del mensaje puede ser el del tablero; la lista debe ser exacta, sin omisiones ni duplicados.
   const mensaje = comprobarDestino((await page.locator('#pedido .cta').getAttribute('href'))!);
   const [saludo, ...lineas] = mensaje!.split('\n');
@@ -86,9 +88,8 @@ test('tablero sin desbordes, portadas cargadas y filas cerradas', async ({ page 
     await expect.poll(() => imagen.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
   }
   await sinDesborde(page);
-  await expect(page.getByRole('link', { name: '¿No ves tu juego?', exact: true })).toBeVisible();
-  // Medir cada banda horizontal del grid, incluidos destacados de dos filas y cierres.
-  // No reutilizar reticula.ts: así se detectan errores del algoritmo o del CSS.
+  // Medir cada banda horizontal del grid, incluidos destacados de dos filas. Sin mosaico de cierre (#23),
+  // solo la última fila puede quedar abierta, con un hueco de un mosaico como máximo (docs/diseno.md §8).
   const huecos = await page.locator('.tablero').evaluate((tablero) => {
     const estilo = getComputedStyle(tablero);
     const caja = tablero.getBoundingClientRect();
@@ -96,6 +97,8 @@ test('tablero sin desbordes, portadas cargadas y filas cerradas', async ({ page 
     const derecha = caja.right - parseFloat(estilo.paddingRight);
     const separacion = parseFloat(estilo.columnGap);
     const piezas = [...tablero.children].map((el) => el.getBoundingClientRect()).filter((r) => r.width && r.height);
+    const fondo = Math.max(...piezas.map((r) => r.bottom));
+    const mosaico = Math.min(...piezas.map((r) => r.width));
     return [...new Set(piezas.map((r) => r.top + 1))].flatMap((y) => {
       const fila = piezas.filter((r) => r.top <= y && r.bottom > y).sort((a, b) => a.left - b.left);
       const fallos: string[] = [];
@@ -104,11 +107,45 @@ test('tablero sin desbordes, portadas cargadas y filas cerradas', async ({ page 
         if (Math.abs(r.left - borde - (i ? separacion : 0)) > 1) fallos.push(`Hueco o solapamiento en y=${y}, x=${r.left}`);
         borde = r.right;
       });
-      if (Math.abs(derecha - borde) > 1) fallos.push(`Fila sin cerrar en y=${y}`);
+      const ultima = fila.every((r) => r.bottom > fondo - 1);
+      const hueco = derecha - borde;
+      if (ultima ? hueco > mosaico + separacion + 1 : Math.abs(hueco) > 1) fallos.push(`Fila sin cerrar en y=${y}`);
       return fallos;
     });
   });
   expect(huecos).toEqual([]);
+});
+
+test('precio como botón: la píldora y su círculo caben en cada mosaico (#23)', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => document.fonts.ready);
+  const fallos = await page.locator('.mosaico[aria-pressed] > .pie > strong, .abrir:visible strong').evaluateAll((pildoras) =>
+    pildoras.flatMap((s) => {
+      const nombre = s.closest('.mosaico')!.querySelector('.n')!.textContent;
+      const circulo = getComputedStyle(s, '::after');
+      const p = s.getBoundingClientRect();
+      const m = s.closest('.mosaico')!.getBoundingClientRect();
+      const fallo = [];
+      if (s.scrollWidth > s.clientWidth + 0.5) fallo.push(`${nombre}: el precio no cabe en la píldora`);
+      if (parseFloat(circulo.width) !== parseFloat(circulo.height)) fallo.push(`${nombre}: círculo aplastado`);
+      if (p.left < m.left || p.right > m.right) fallo.push(`${nombre}: la píldora se sale del mosaico`);
+      return fallo;
+    }));
+  expect(fallos).toEqual([]);
+  // Elegido: mosaico en tinta, píldora blanca y ✓ rojo.
+  const p = vendibles.find((p) => !p.grupo)!;
+  await item(page, p.id).click();
+  await expect(item(page, p.id).locator('.pie > strong')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  expect(await item(page, p.id).locator('.pie > strong').evaluate((s) => getComputedStyle(s, '::after').backgroundColor)).toBe('rgb(230, 0, 18)');
+});
+
+test('consulta general disponible sin elegir nada (#23)', async ({ page }) => {
+  await page.goto('/');
+  const consulta = page.getByRole('link', { name: 'Preguntar por WhatsApp', exact: true });
+  await expect(consulta).toBeVisible();
+  expect(comprobarDestino((await consulta.getAttribute('href'))!)).toBe('Hola, tengo una pregunta sobre el catálogo');
+  await expect(page.locator('#pedido')).toBeHidden();
+  await expect(page.getByRole('link', { name: '¿No ves tu juego?' })).toHaveCount(0);
 });
 
 test('dos títulos: selección, total, WhatsApp y restauración', async ({ page }) => {

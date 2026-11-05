@@ -89,11 +89,11 @@ export const destacados = tienda.destacados.map(fichaDe).filter((f): f is Ficha 
 
 /** Bloques bajo los destacados. La consola la marca la pestaña de cada mosaico, así que los juegos
  *  van juntos y sin título; un juego con versión para cada consola es un mosaico con un precio por versión. */
-export interface Seccion { titulo?: string; fichas: Ficha[]; mas: string; mensaje: string }
+export interface Seccion { titulo?: string; fichas: Ficha[] }
 const resto = fichas.filter((f) => !destacados.includes(f));
 export const secciones: Seccion[] = [
-  { fichas: resto.filter((f) => f.tipo === 'Juego'), mas: '¿No ves tu juego?', mensaje: 'Hola, busco un juego' },
-  { titulo: 'DLC y updates', fichas: tienda.mostrarDlcUpdates ? resto.filter((f) => f.tipo !== 'Juego') : [], mas: '¿Buscas otro DLC?', mensaje: 'Hola, busco un DLC' },
+  { fichas: resto.filter((f) => f.tipo === 'Juego') },
+  { titulo: 'DLC y updates', fichas: tienda.mostrarDlcUpdates ? resto.filter((f) => f.tipo !== 'Juego') : [] },
 ].filter((s) => s.fichas.length > 0);
 
 const fmt = new Intl.NumberFormat(tienda.locale, { style: 'currency', currency: tienda.moneda, maximumFractionDigits: 0 });

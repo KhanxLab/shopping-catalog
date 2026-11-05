@@ -6,42 +6,24 @@ import Pedido from '../components/Pedido.astro';
 import PanelVersiones from '../components/PanelVersiones.astro';
 import { tienda } from '../data/tienda';
 import { destacados, secciones, whatsapp } from '../lib/catalogo';
-import { cierres, type Pieza } from '../lib/reticula';
 const [principal, ...secundarios] = destacados;
-// El mosaico "¿No ves...?" ocupa lo que falte para cerrar su sección sin huecos (ver lib/reticula.ts).
-// Celular: 6 columnas, mosaicos de 3. Escritorio: 10 columnas, mosaicos de 2, destacados 6×2 y 4.
-// Un juego con versiones mide lo mismo que cualquier juego: las abre en un panel.
-const piezas = (movil: boolean): Pieza[] => {
-  const fila = { ancho: movil ? 6 : 10 };
-  return [
-    fila,
-    ...(principal ? [{ ancho: 6, alto: movil ? 1 : 2 }] : []),
-    ...secundarios.map(() => ({ ancho: movil ? 3 : 4 })),
-    ...secciones.flatMap((s) => [
-      ...(s.titulo ? [fila] : []),
-      ...s.fichas.map(() => ({ ancho: movil ? 3 : 2 })),
-      'cierre' as const,
-    ]),
-  ];
-};
-const movil = cierres(piezas(true), 6, 3);
-const escritorio = cierres(piezas(false), 10, 2);
 ---
 <Layout>
 <main class="tablero">
   <header class="cabecera">
     <p class="marca">{tienda.nombre}</p>
     <h1>Códigos para Switch 1 y 2</h1>
+    <!-- Consulta general sin elegir nada (#23): enlace, no un segundo botón flotante; mensaje distinto al del pedido. -->
+    <a class="consulta" href={whatsapp('Hola, tengo una pregunta sobre el catálogo')} target="_blank" rel="noopener">Preguntar por WhatsApp</a>
   </header>
 
   {principal && <Mosaico f={principal} tamano="grande" />}
   {secundarios.map((f) => <Mosaico f={f} tamano="medio" />)}
 
-  {secciones.map((s, i) => (
+  {secciones.map((s) => (
     <>
       {s.titulo && <h2>{s.titulo}</h2>}
       {s.fichas.map((f) => <Mosaico f={f} />)}
-      <a class="mas" href={whatsapp(s.mensaje)} target="_blank" rel="noopener" style={`--movil:${movil[i]};--escritorio:${escritorio[i]}`}>{s.mas}</a>
     </>
   ))}
 </main>
@@ -54,19 +36,16 @@ const escritorio = cierres(piezas(false), 10, 2);
   .cabecera { grid-column: 1 / -1; border-radius: 8px; padding: 22px 20px 26px; background: var(--rojo); color: #fff; }
   .marca { font-size: 17px; font-weight: 800; }
   h1 { margin-top: 36px; max-width: 12ch; font-size: clamp(38px, 11vw, 88px); font-weight: 800; line-height: .95; letter-spacing: -.035em; }
+  .consulta { display: inline-block; margin-top: 18px; font-size: 15px; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
   h2 { grid-column: 1 / -1; padding: 26px 4px 2px; font-size: clamp(26px, 6.4vw, 44px); font-weight: 800; letter-spacing: -.03em; line-height: 1; }
-  .mas {
-    grid-column: span var(--movil); min-height: 160px; border-radius: 8px; padding: 16px;
-    display: flex; align-items: flex-end; background: var(--rojo); color: #fff;
-    font-size: 22px; font-weight: 800; line-height: 1.05; letter-spacing: -.02em;
-  }
 
   @media (min-width: 760px) {
     /* Hasta 1440px: más ancho, los mosaicos se agrandan de más y las portadas pierden nitidez. */
     .tablero { grid-template-columns: repeat(10, 1fr); padding: 12px; max-width: 1440px; margin: 0 auto; }
     /* Cabecera baja en escritorio: el título en 1 línea deja ver los 3 destacados con su precio sin desplazar. */
-    .cabecera { padding: 22px 28px 26px; }
-    h1 { margin-top: 18px; max-width: none; }
-    .mas { grid-column: span var(--escritorio); }
+    /* El enlace de consulta va a la derecha del nombre: la cabecera no crece y los destacados siguen a la vista. */
+    .cabecera { padding: 22px 28px 26px; display: grid; grid-template-columns: 1fr auto; align-items: baseline; column-gap: 16px; }
+    .consulta { grid-row: 1; grid-column: 2; margin-top: 0; }
+    h1 { grid-column: 1 / -1; margin-top: 18px; max-width: none; }
   }
 </style>

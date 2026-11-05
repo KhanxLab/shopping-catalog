@@ -19,9 +19,9 @@ function iniciar(guardado: string | null, bloqueado = false) {
     getAttribute: (k: string) => atributos.get(k),
     addEventListener: (k: string, fn: (e: { preventDefault(): void }) => void) => eventos.set(k, fn),
   };
-  const total = { textContent: '' }, cta = { href: '' }, anuncio = { textContent: '' };
+  const total = { textContent: '' }, cuenta = { textContent: '' }, cta = { href: '' }, anuncio = { textContent: '' };
   const vaciar = { addEventListener() {} };
-  const partes: Record<string, unknown> = { '.total': total, '.cta': cta, '.vaciar': vaciar };
+  const partes: Record<string, unknown> = { '.total': total, '.cuenta': cuenta, '.cta': cta, '.vaciar': vaciar };
   const bar = { dataset: { locale: 'es-CO', moneda: 'COP', wa: '573058147293' }, hidden: true, querySelector: (s: string) => partes[s] };
   runInNewContext(script, {
     document: {
@@ -35,7 +35,7 @@ function iniciar(guardado: string | null, bloqueado = false) {
     },
     Intl,
   });
-  return { bar, total, cta, atributos, eventos, persistido: () => persistido };
+  return { bar, total, cuenta, cta, atributos, eventos, persistido: () => persistido };
 }
 
 for (const valor of ['null', '{}', '42', 'true', '"juego"', '{malformado', null]) {
@@ -46,6 +46,7 @@ for (const valor of ['null', '{}', '42', 'true', '"juego"', '{malformado', null]
     p.eventos.get('click')!({ preventDefault() {} });
     assert.equal(p.atributos.get('aria-pressed'), 'true');
     assert.equal(p.bar.hidden, false);
+    assert.equal(p.cuenta.textContent, '1 artículo');
     assert.match(new URL(p.cta.href).searchParams.get('text')!, /Juego de prueba.*239\.900/);
     assert.deepEqual(JSON.parse(p.persistido()!), ['juego']);
   });

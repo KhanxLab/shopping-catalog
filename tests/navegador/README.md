@@ -24,7 +24,11 @@ y lo contrastan con `dist/`.
 La suite comprueba:
 
 - Carga de todas las imágenes declaradas, sin desborde horizontal y sin huecos entre
-  piezas de la retícula; «¿No ves tu juego?» cierra la sección.
+  piezas de la retícula (solo la última fila puede quedar abierta, un mosaico como máximo).
+- Precio como botón (#23): en cada mosaico la píldora y su círculo caben, el círculo es
+  redondo y, al elegir, la píldora queda blanca con el ✓ rojo. Enlace de consulta general
+  con su propio mensaje, sin «¿No ves tu juego?».
+- Cantidad de artículos en la barra en cada comprobación del pedido.
 - Selección de dos títulos, color de selección, total y mensaje completo, recarga y
   deselección. Los importes, nombres, variantes y destinatario salen de los datos del repo.
 - Panel real: selección con Espacio, anuncio del total, Escape y devolución del foco.

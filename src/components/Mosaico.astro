@@ -103,15 +103,33 @@ const RECORTE = { arriba: '50% 0%', centro: '50% 50%', abajo: '50% 100%', izquie
   .n { font-size: 14px; font-weight: 800; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .c { font-size: 13px; color: var(--suave); }
   .junto { white-space: nowrap; }
-  strong { margin-top: auto; padding-top: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+  strong { margin-top: auto; padding-top: 6px; display: flex; justify-content: space-between; align-items: center; font-size: var(--precio, 22px); font-weight: 800; letter-spacing: -.02em; }
 
-  /* "+" / "✓": dice que el mosaico se suma al pedido. Solo aparece si el script de Pedido lo activó. */
-  [aria-pressed] strong::after { content: '+'; content: '+' / ''; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--suelo); font-size: 20px; font-weight: 500; letter-spacing: 0; }
+  /* Precio como botón (#23): el precio y el "+" forman una sola píldora gris, sin texto de ayuda.
+     Solo aparece si el script de Pedido activó el mosaico (aria-pressed) o abre el panel (.abrir);
+     "Consultar" ([target]) la lleva siempre, con "↗". Sin JavaScript el mosaico es un enlace de WhatsApp.
+     Medidas por variables para que los mosaicos estrechos las cambien (@container más abajo). */
+  .mosaico { container-type: inline-size; }
+  .mosaico:is([aria-pressed], [target]) > .pie > strong, .abrir strong, .version:is([aria-pressed], [target]) strong {
+    min-height: var(--alto-boton, 44px); margin: auto calc(-1 * var(--sangria, 6px)) 0; padding: 0 var(--borde-boton, 5px) 0 var(--sangria, 6px);
+    gap: var(--hueco-boton, 6px); border-radius: 999px; background: var(--suelo); color: var(--tinta); }
+  /* Separación mínima entre el nombre (o la nota) y la píldora. */
+  .mosaico:is([aria-pressed], [target]) > .pie > :nth-last-child(2) { margin-bottom: 6px; }
+  .abrir strong { margin-top: 6px; }
+  .mosaico:is([aria-pressed], [target]) > .pie > strong::after, .abrir strong::after, .version:is([aria-pressed], [target]) strong::after {
+    content: '+'; content: '+' / ''; flex: none; width: var(--circulo, 34px); height: var(--circulo, 34px); border-radius: 50%;
+    display: grid; place-items: center; background: var(--mosaico); color: var(--tinta); font-size: 20px; font-weight: 500; letter-spacing: 0; }
+  /* Sin precio ("Consultar"): abre WhatsApp en vez de sumarse al pedido; la flecha lo distingue del "+". */
+  .mosaico[target] > .pie > strong::after, .version[target] strong::after { content: '↗'; content: '↗' / ''; font-size: 16px; }
+  /* Elegido: mosaico en tinta; la píldora queda blanca con el ✓ rojo (no se vuelve un bloque rojo). */
   [aria-pressed='true'] { --fondo: var(--tinta); color: #fff; }
   [aria-pressed='true'] .c { color: #b9b9c2; }
-  [aria-pressed='true'] strong::after { content: '✓'; content: '✓' / ''; background: var(--rojo); font-size: 15px; }
-  /* Sin precio ("Consultar"): el mosaico abre WhatsApp en vez de sumarse al pedido; la flecha lo distingue del "+". */
-  [target] strong::after { content: '↗'; content: '↗' / ''; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--suelo); font-size: 16px; font-weight: 500; letter-spacing: 0; }
+  .mosaico[aria-pressed='true'] > .pie > strong, .version[aria-pressed='true'] strong { background: var(--mosaico); }
+  .mosaico[aria-pressed='true'] > .pie > strong::after, .version[aria-pressed='true'] strong::after { content: '✓'; content: '✓' / ''; background: var(--rojo); color: #fff; font-size: 15px; }
+  /* Mosaicos estrechos (celular de 320–360 px; escritorio de 760–900 px): precio a 20 px y círculo de 28 px
+     para que "$ 205.900" y el "+" quepan en la píldora (medido a 320, 760 y 1920 px). */
+  @container (max-width: 160px) { .pie { --precio: 20px; --circulo: 28px; --hueco-boton: 0px; --borde-boton: 3px; } }
+  @container (max-width: 144px) { .pie { --sangria: 10px; } }
 
   /* Juego con varias versiones: mosaico normal; el botón .abrir cubre todo el mosaico y abre el panel. */
   .ancho { position: relative; }
@@ -122,12 +140,12 @@ const RECORTE = { arriba: '50% 0%', centro: '50% 50%', abajo: '50% 100%', izquie
   .abrir::before { content: ''; position: absolute; inset: 0; z-index: 2; }
   .abrir:focus-visible { outline: none; }
   .ancho:has(.abrir:focus-visible) { outline: 3px solid var(--tinta); outline-offset: 2px; }
-  .abrir strong::after { content: '+'; content: '+' / ''; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--suelo); font-size: 20px; font-weight: 500; letter-spacing: 0; }
   /* Con alguna versión elegida, el mosaico se ve elegido (sus filas no están a la vista). */
   .panel[data-panel-listo]:has(.version[aria-pressed='true']) { --fondo: var(--tinta); color: #fff; }
   .panel[data-panel-listo]:has(.version[aria-pressed='true']) .c { color: #b9b9c2; }
+  .panel[data-panel-listo]:has(.version[aria-pressed='true']) .abrir strong { background: var(--mosaico); }
   /* El ✓ lleva texto para el lector de pantalla: las filas con aria-pressed están ocultas en el panel. */
-  .panel[data-panel-listo]:has(.version[aria-pressed='true']) .abrir strong::after { content: '✓'; content: '✓' / 'versión elegida'; background: var(--rojo); font-size: 15px; }
+  .panel[data-panel-listo]:has(.version[aria-pressed='true']) .abrir strong::after { content: '✓'; content: '✓' / 'versión elegida'; background: var(--rojo); color: #fff; font-size: 15px; }
   .panel[data-panel-listo] .abrir { display: flex; }
   .panel[data-panel-listo] .versiones { display: none; }
   /* Respaldo por defecto, también si falla el script con JavaScript habilitado. */
@@ -143,6 +161,8 @@ const RECORTE = { arriba: '50% 0%', centro: '50% 50%', abajo: '50% 100%', izquie
   .version:active { transform: scale(.98); }
   .version[aria-pressed='true'] { --fondo: var(--tinta); }
   .version strong { margin: 0; padding: 0; justify-content: flex-end; gap: 10px; }
+  /* En la fila, la píldora se ajusta al precio y queda a la derecha. */
+  .version:is([aria-pressed], [target]) strong { justify-self: end; margin: 0; padding-left: 12px; }
   /* Sello de cada versión: como la pestaña, en pequeño (Switch 2 en rojo). */
   .edicion { justify-self: start; position: relative; }
   .sello { height: 28px; padding: 0 8px; border-radius: 6px; display: flex; align-items: center; gap: 3px; background: var(--suelo); color: var(--tinta); font-size: 13px; font-weight: 800; line-height: 1; }
@@ -152,6 +172,9 @@ const RECORTE = { arriba: '50% 0%', centro: '50% 50%', abajo: '50% 100%', izquie
   /* En el panel, cada edición lleva su portada con el sello en la esquina, como la pestaña del mosaico. */
   .mini { display: none; }
   :global(.hoja) .mini { display: block; position: static; width: 96px; height: auto; aspect-ratio: 16 / 9; border-radius: 6px; }
+  :global(.hoja) .sello { white-space: nowrap; }
+  /* Panel a 320–380 px: miniatura y precio más chicos para que la píldora quepa junto a la portada. */
+  @media (max-width: 380px) { :global(.hoja) .mini { width: 72px; } :global(.hoja) .version { --precio: 20px; } }
   :global(.hoja) .mini + .sello { position: absolute; top: 0; left: 0; border-radius: 6px 0 6px 0; }
   .solo-lector { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
@@ -159,8 +182,7 @@ const RECORTE = { arriba: '50% 0%', centro: '50% 50%', abajo: '50% 100%', izquie
   .grande .img { aspect-ratio: 2 / 1; }
   .grande .pie { padding: 14px 16px 16px; }
   .grande .n { font-size: 18px; font-weight: 800; }
-  .grande strong { font-size: 30px; }
-
+  .grande .pie { --precio: 30px; --alto-boton: 52px; --circulo: 42px; --sangria: 8px; }
   @media (min-width: 760px) {
     .mosaico { grid-column: span 2; }
     .panel:not([data-panel-listo]) { grid-column: span 4; }
@@ -169,10 +191,11 @@ const RECORTE = { arriba: '50% 0%', centro: '50% 50%', abajo: '50% 100%', izquie
     .grande .pie { flex: none; }
     .medio { grid-column: span 4; }
     /* Los 3 destacados caben con su precio en la primera pantalla (el grande mide lo que los dos chicos).
-       182px = cabecera (183) + 3 separaciones de 8 + 2 pies de 75 + margen de 12, repartido entre 2 filas. */
-    .medio .img { aspect-ratio: 2.1 / 1; max-height: max(140px, calc(50svh - 182px)); }
+       182px = cabecera (183) + 3 separaciones de 8 + 2 pies de 75 + margen de 12, repartido entre 2 filas.
+       +16px: la píldora del precio (#23) hace cada pie 16px más alto (medido: 93 → 109). */
+    .medio .img { aspect-ratio: 2.1 / 1; max-height: max(140px, calc(50svh - 198px)); }
     /* Con versiones, el pie lleva una línea más ("N versiones · desde", 17px): la portada cede ese alto. */
-    .medio.panel .img { max-height: max(140px, calc(50svh - 199px)); }
+    .medio.panel .img { max-height: max(140px, calc(50svh - 215px)); }
   }
   @media (prefers-reduced-motion: reduce) { .mosaico, .consola, .version { transition: none; } }
 </style>

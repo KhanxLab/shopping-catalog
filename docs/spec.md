@@ -50,9 +50,10 @@ en menos de 30 segundos.
   entrada y comparten `"grupo"`. Cada precio se elige por separado y llega al pedido con su consola.
   En celular y escritorio el mosaico es de tamaño normal ("3 versiones · Switch 1 desde $ …") y al tocarlo las
   versiones se eligen en un panel (abajo en celular, centrado en escritorio); sin JavaScript se ven en el mosaico.
-- **F2. Arma tu pedido:** cada precio lleva un "+"; tocar el mosaico lo marca (✓) y lo suma
-  a una barra fija inferior ("$ 1.648 · Vaciar · Pedir por WhatsApp"). El "+" sustituye al
-  texto de ayuda. El botón envía un solo mensaje:
+- **F2. Arma tu pedido:** el precio es el botón: va en una píldora gris con un "+" (#23); tocar
+  el mosaico lo marca (mosaico negro, píldora blanca con ✓ rojo) y lo suma a una barra fija inferior
+  ("2 artículos / $ 1.648 · Vaciar · Pedir por WhatsApp"; la cantidad cuenta versiones elegidas). La
+  píldora sustituye al texto de ayuda: sin "Agregar" ni "Elegir versión". El botón envía un solo mensaje:
   ```
   Hola, quiero pedir:
   • Super Mario Bros. Wonder (Juego · Switch 1 y 2) $999
@@ -61,8 +62,9 @@ en menos de 30 segundos.
   ```
 - **F3. Sin JavaScript:** cada título es un enlace `wa.me` con su propio mensaje, así que
   sigue funcionando si el script falla.
-- **F4. Mosaico "¿No ves tu juego?"** al final de Juegos y de DLC → WhatsApp genérico
-  (sustituye al "Y muchos más" de la referencia).
+- **F4. Consulta general:** enlace "Preguntar por WhatsApp" en la cabecera, disponible sin elegir
+  nada, con su propio mensaje ("Hola, tengo una pregunta sobre el catálogo"). Sustituye al mosaico
+  "¿No ves tu juego?" (quitado en #23 a pedido del dueño).
 - **F5. Sin portada:** si un título no tiene `imagen`, queda el fondo gris de la portada.
 - **F6. Sin textos secundarios:** ni eslogan, ni ayuda, ni beneficios. La **consola** la marca
   una **pestaña con el logo de Switch** en la esquina de cada portada (Switch 2: en rojo y con
@@ -109,7 +111,7 @@ src/
     imagenes/<id>.webp← portadas 16:9 (Astro genera 320/400/480/560/640/800/960 px en webp)
   lib/catalogo.ts     ← lee productos.json → destacados, secciones; precio(), whatsapp(), item()
   components/
-    Mosaico.astro     ← un producto: portada optimizada + pestaña de consola, nombre, nota, precio con "+"/"✓"
+    Mosaico.astro     ← un producto: portada optimizada + pestaña de consola, nombre, nota, precio en píldora con "+"/"✓"
     Pedido.astro      ← barra del pedido + script de selección
   layouts/Layout.astro← <head> (fuente, og:*), tokens de color en :root, reset global
   pages/
@@ -176,9 +178,23 @@ Solo se restauran listas de cadenas; otros formatos inician un pedido vacío.
 
 ## 5. Estado (actualizar al cerrar cada sesión)
 
-**Última actualización:** 2026-11-04 (issue #27: portada y precio "desde" de la misma edición).
+**Última actualización:** 2026-11-05 (issue #23: el precio es el botón; consulta en la cabecera; sin "¿No ves tu juego?").
 
 Hecho:
+- [x] **Issue #23 — acciones explícitas, con poco texto.** Tras dos bocetos con el dueño (el primero, con píldoras
+      "Agregar" / "Elegir versión", se descartó por exceso de texto): el precio y el "+" van en una píldora gris
+      tocable; al elegir, el mosaico queda en tinta y la píldora blanca con el ✓ rojo. Juegos con versiones: la misma
+      píldora con el precio "desde" abre el panel, y cada versión del panel lleva la suya. Barra: "N artículos" sobre
+      el total (cuenta versiones). Consulta general: enlace "Preguntar por WhatsApp" en la cabecera (celular: bajo el
+      título; escritorio: a la derecha del nombre, la cabecera no crece). Se quitó el mosaico "¿No ves tu juego?" y
+      `lib/reticula.ts`; con 25 juegos (impar) la última fila del celular queda con un mosaico solo. Mosaicos de menos
+      de 160 px: precio a 20 px (`@container`); panel hasta 380 px: miniatura de 72 px y precio de 20 px. Portada de
+      los destacados chicos 16 px más baja para compensar la píldora. Verificado: 23 pruebas de Node y 27 de navegador
+      (nuevas: píldora que cabe con círculo redondo y colores al elegir; enlace de consulta con su mensaje; cantidad
+      en cada pedido; retícula con la última fila abierta). La prueba de la píldora falla a 320 px si se quita el
+      `@container` (mutación comprobada). Medido sin desborde de píldoras, página ni panel a 320, 340, 360, 375, 414,
+      760, 780, 820, 900, 1024 y 1920 px; los 3 precios destacados quedan en la misma posición que antes a 1280×800,
+      1366×768 y 1440×900.
 - [x] Issue #27: el mosaico con versiones ya no muestra la caja de Switch 2 junto al precio de
       Switch 1. Portada = imagen general del grupo (nuevo `grupos` opcional en `productos.json`) o,
       si no hay, la de la edición del "desde"; la línea dice "3 versiones · Switch 1 desde". En el
@@ -519,7 +535,7 @@ La revisión humana de diseño y la prueba en celular real siguen siendo necesar
 | 2026-11-04 | Portada del mosaico con versiones anclada abajo (`object-position: 50% 100%`) | Las cajas de Switch 2 Edition llevan la franja "Nintendo Switch 2 Edition" abajo; el recorte 3:1 centrado la cortaba. Desde 1100 px (portada a la izquierda) el recorte es por los lados y la franja o el logo pueden cortarse: la pestaña ⊞2 ya marca la versión. |
 | 2026-11-04 | Campo opcional `imagen.recorte` en vez de un recorte fijo | La franja "Nintendo Switch 2 Edition" va abajo en Zelda y Wonder pero arriba en Animal Crossing; no hay un recorte que sirva para todas. Por defecto "abajo" (el caso común). |
 | 2026-11-04 | ~~Alto mínimo de los destacados chicos con versiones en escritorio~~ (ya no aplica: van en el panel) | En horizontal miden menos y el destacado grande (que ocupa las 2 filas) se encogía hasta recortar el logo de Mario Kart World. |
-| 2026-11-04 | Ancho de "¿No ves tu juego?" calculado simulando la retícula (`lib/reticula.ts`) | Con mosaicos de dos anchos, contar mosaicos ya no dice cuánto falta para cerrar la fila. |
+| 2026-11-04 | ~~Ancho de "¿No ves tu juego?" calculado simulando la retícula (`lib/reticula.ts`)~~ (quitado en #23) | Con mosaicos de dos anchos, contar mosaicos ya no dice cuánto falta para cerrar la fila. |
 | 2026-11-04 | Sin `flex-wrap` en el precio para WCAG 1.4.12 | Probado: a 320 px el "+" bajaba de línea siempre (+369 px de alto). Con espaciado aumentado el "+" se recorta, pero es decorativo: el precio sigue visible y el estado lo dan el color y `aria-pressed`. |
 | 2026-11-04 | **Sin AVIF**: las portadas siguen solo en webp q78 | Medido en las 28 portadas a 640 px (SSIM en luminancia, 1 = idéntica): con la misma nitidez AVIF casi no ahorra (q60: 926 KB y 0,9805 contra webp q65: 968 KB y 0,9806, −4 %); igualar a webp q78 (0,9912) cuesta +14 % (q72). Los originales ya son webp con pérdida a 960 px, así que AVIF no tiene detalle que comprimir mejor. Además el build pasaba de ~5 s a 1 min 16 s. El "~18 %" anterior comparaba con el mismo número de calidad, que no significa lo mismo en los dos formatos. Revisar si el dueño entrega portadas sin pérdida y más grandes. |
 | 2026-11-04 | `sizes` con el ancho exacto del mosaico y variantes cada 80–160 px | Casi todo el peso estaba en 23 mosaicos de ~181 px que en celulares de densidad 3 bajaban 640 px (necesitan 543). Con escalones más finos cada equipo baja la variante justa por encima de lo que necesita: −15 % a −46 % sin perder nitidez. Las fórmulas de `sizes` salen de la retícula (comentario en `Mosaico.astro`): si cambian márgenes, separación o columnas, actualizarlas. |
@@ -535,6 +551,9 @@ La revisión humana de diseño y la prueba en celular real siguen siendo necesar
 | 2026-11-04 | #27: portada del mosaico con versiones = imagen general del grupo o, si no hay, la de la edición del "desde"; la línea nombra esa edición ("Switch 1 desde") | La caja de Switch 2 junto a un precio de Switch 1 hacía esperar el juego de Switch 2 a ese precio. Sin imagen de esa edición queda gris en vez de usar la de otra. La portada general va en `grupos` (raíz del JSON) y no en una fila, porque es del juego, no de una versión. |
 | 2026-11-04 | #27: miniatura de 96 px por edición, solo en el panel, con el sello encima como la pestaña | Asocia cada caja con su precio donde se elige. Junto al sello no cabía a 320 px (332 px de fila en 288); encima, la fila mide lo mismo que hoy. En el mosaico y sin JavaScript no se muestran: no hay sitio y las portadas siguen siendo protagonistas. |
 | 2026-11-04 | Atribución de Claude desactivada en `.claude/settings.json` del repo (no solo en `~/.claude`) | Lo pidió el dueño. En la nube `~/.claude` se borra al terminar cada sesión; en el repo vale siempre. Se dejan las dos claves: `includeCoAuthoredBy` es la antigua y `attribution` la actual. |
+| 2026-11-05 | #23: el precio es el botón (píldora gris con "+"; elegido: píldora blanca con ✓ rojo), sin "Agregar" ni "Elegir versión" | Primer boceto con píldoras de texto descartado por el dueño ("demasiado texto"). La píldora hace que el precio se vea tocable sin agregar palabras ni alto: el mosaico crece 16 px, no 48. |
+| 2026-11-05 | #23: consulta general = enlace "Preguntar por WhatsApp" en la cabecera; se quitan "¿No ves tu juego?", "¿Buscas otro DLC?" y `lib/reticula.ts` | Pedido del dueño. Un enlace, no un segundo botón flotante (criterio del issue). Sin el mosaico de cierre, la última fila puede quedar abierta (un mosaico como máximo); la prueba de retícula lo permite solo en la última fila. |
+| 2026-11-05 | #23: precio de 20 px en mosaicos de menos de 160 px, con `@container` | A 320 px y a 760 px el mosaico mide 141–146 px: "$ 205.900" a 22 px más el círculo no caben en la píldora. Por ancho del mosaico y no de la pantalla, porque el escritorio estrecho tiene el mismo problema. |
 
 ## 9. Cómo verificar un cambio
 

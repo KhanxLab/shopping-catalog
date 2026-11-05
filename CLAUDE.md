@@ -55,9 +55,12 @@ plantillas de issue (`.github/ISSUE_TEMPLATE/`: «Error» → `bug`, «Solicitud
   cada mosaico sigue siendo un enlace de WhatsApp (F3): no rompas esa mejora progresiva.
   En celular, las filas de un juego con versiones se **mueven** (no se copian) al `<dialog>` de
   `PanelVersiones.astro` y vuelven al cerrar; las filas son visibles por defecto y solo se ocultan tras inicializar los eventos (`data-panel-listo`).
-- **Retícula:** grid de 6/10 columnas con `grid-auto-flow: dense`. El mosaico "¿No ves tu juego?"
-  calcula su ancho con `lib/reticula.ts`, que simula `dense` con los anchos de cada mosaico (los juegos
-  con versiones miden 2): si cambias tamaños de mosaico, actualiza las piezas en `index.astro`.
+- **Retícula:** grid de 6/10 columnas con `grid-auto-flow: dense`. No hay mosaico de cierre: solo la
+  última fila puede quedar abierta (un mosaico como máximo). La consulta general es el enlace
+  "Preguntar por WhatsApp" de la cabecera.
+- **Precio como botón (#23):** con el script activo, precio y "+"/"✓" van en una píldora (`Mosaico.astro`);
+  en mosaicos estrechos la achica un `@container` (precio 20px). Si cambias tamaños de mosaico o del pie,
+  revisa la prueba de la píldora y que los 3 precios destacados se vean sin desplazar a 1366×768.
 - **Endpoints estáticos:** `pages/og.jpg.ts` compone con `sharp` la imagen para compartir a partir
   de los 3 destacados, que debe quedar en menos de ~300 KB para WhatsApp. `pages/favicon.svg.ts`
   usa la inicial de `tienda.nombre`. Las etiquetas `og:*`/`canonical` de `Layout.astro` solo salen
