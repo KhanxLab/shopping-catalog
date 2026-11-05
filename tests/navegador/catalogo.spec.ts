@@ -89,28 +89,35 @@ test('tablero sin desbordes, portadas cargadas y filas cerradas', async ({ page 
   }
   await sinDesborde(page);
   // Medir cada banda horizontal del grid, incluidos destacados de dos filas. Sin mosaico de cierre (#23),
-  // solo la última fila puede quedar abierta, con un hueco de un mosaico como máximo (docs/diseno.md §8).
+  // solo la última fila de cada sección puede quedar abierta, con un hueco de un mosaico como máximo
+  // (docs/diseno.md §8). Cada sección es su propia retícula (.seccion, subgrid).
   const huecos = await page.locator('.tablero').evaluate((tablero) => {
     const estilo = getComputedStyle(tablero);
     const caja = tablero.getBoundingClientRect();
     const izquierda = caja.left + parseFloat(estilo.paddingLeft);
     const derecha = caja.right - parseFloat(estilo.paddingRight);
     const separacion = parseFloat(estilo.columnGap);
-    const piezas = [...tablero.children].map((el) => el.getBoundingClientRect()).filter((r) => r.width && r.height);
-    const fondo = Math.max(...piezas.map((r) => r.bottom));
-    const mosaico = Math.min(...piezas.map((r) => r.width));
-    return [...new Set(piezas.map((r) => r.top + 1))].flatMap((y) => {
-      const fila = piezas.filter((r) => r.top <= y && r.bottom > y).sort((a, b) => a.left - b.left);
-      const fallos: string[] = [];
-      let borde = izquierda;
-      fila.forEach((r, i) => {
-        if (Math.abs(r.left - borde - (i ? separacion : 0)) > 1) fallos.push(`Hueco o solapamiento en y=${y}, x=${r.left}`);
-        borde = r.right;
+    const contenedores = [tablero, ...tablero.querySelectorAll(':scope > .seccion')];
+    return contenedores.flatMap((contenedor) => {
+      const piezas = [...contenedor.children].filter((el) => !el.classList.contains('seccion'))
+        .map((el) => el.getBoundingClientRect()).filter((r) => r.width && r.height);
+      if (!piezas.length) return [];
+      const fondo = Math.max(...piezas.map((r) => r.bottom));
+      const mosaico = Math.min(...piezas.map((r) => r.width));
+      const abierta = contenedor !== tablero;
+      return [...new Set(piezas.map((r) => r.top + 1))].flatMap((y) => {
+        const fila = piezas.filter((r) => r.top <= y && r.bottom > y).sort((a, b) => a.left - b.left);
+        const fallos: string[] = [];
+        let borde = izquierda;
+        fila.forEach((r, i) => {
+          if (Math.abs(r.left - borde - (i ? separacion : 0)) > 1) fallos.push(`Hueco o solapamiento en y=${y}, x=${r.left}`);
+          borde = r.right;
+        });
+        const ultima = abierta && fila.every((r) => r.bottom > fondo - 1);
+        const hueco = derecha - borde;
+        if (ultima ? hueco > mosaico + separacion + 1 : Math.abs(hueco) > 1) fallos.push(`Fila sin cerrar en y=${y}`);
+        return fallos;
       });
-      const ultima = fila.every((r) => r.bottom > fondo - 1);
-      const hueco = derecha - borde;
-      if (ultima ? hueco > mosaico + separacion + 1 : Math.abs(hueco) > 1) fallos.push(`Fila sin cerrar en y=${y}`);
-      return fallos;
     });
   });
   expect(huecos).toEqual([]);

@@ -58,7 +58,7 @@ No agregar rojo en otros sitios.
 | Separación entre mosaicos | 8px | 8px |
 | Margen exterior | 10px | 12px; el tablero mide como máximo 1440px y se centra (más ancho, los mosaicos crecen de más) |
 | Radio de esquina | 8px en todos los mosaicos; 6px en las filas y sellos de versión (van dentro de un mosaico); 999px solo en controles (barra, píldora del precio, círculo "+") | igual |
-| `grid-auto-flow` | `dense` (rellena huecos) | igual |
+| `grid-auto-flow` | `dense` (rellena huecos), dentro de cada sección (`.seccion`, subgrid de todo el ancho): un mosaico nunca salta a otra sección | igual |
 
 Tamaños de mosaico (clases) y cuántas columnas ocupan:
 
@@ -133,6 +133,7 @@ Así el respaldo también funciona si el script falla. Si falla `showModal`, se 
   28px (`@container`); con menos de 144px la píldora sobresale 10px. Sin JavaScript no aparece. Sin texto de ayuda
   ("Agregar" se descartó por exceso de texto).
 - **Sin precio** ("Consultar"): la misma píldora con "↗" en el círculo, porque al tocarlo abre WhatsApp en vez de sumarse al pedido.
+  Esta sí aparece siempre, también sin JavaScript: el mosaico es un enlace de WhatsApp en ambos casos.
 - **Pestaña de consola:** esquina sólida arriba a la izquierda, radio solo en la esquina de
   abajo a la derecha (8px). Switch 1: fondo del mosaico (`--fondo`) y logo en tinta; Switch 2:
   `--rojo`, logo y "2" en blanco. Sin sombra ni borde.
@@ -152,7 +153,8 @@ Así el respaldo también funciona si el script falla. Si falla `showModal`, se 
   flota. Aparece con una subida de 250 ms.
 - `prefers-reduced-motion`: se quitan transiciones y la animación de la barra.
 - Foco visible: `outline: 3px solid var(--tinta)` con 2px de separación (global en `Layout.astro`), que queda
-  sobre el suelo gris (15,4:1) aunque el mosaico sea negro o rojo. Dentro de la barra de pedido va en blanco.
+  sobre el suelo gris (15,4:1) aunque el mosaico sea negro. En el enlace "Preguntar por WhatsApp" queda sobre el rojo
+  de la cabecera (3,9:1, cumple el mínimo de 3:1). Dentro de la barra de pedido va en blanco.
   No usar `currentColor`: en mosaicos con texto blanco el contorno quedaba blanco sobre gris (1,2:1).
 - Mientras la barra de pedido está visible, `scroll-padding-bottom` evita que tape el mosaico con foco.
 - Lector de pantalla: el "+" / "✓" es decorativo (`content: '+' / ''`); el estado lo da `aria-pressed`. Al
