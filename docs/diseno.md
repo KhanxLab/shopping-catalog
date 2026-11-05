@@ -36,18 +36,27 @@ No agregar rojo en otros sitios.
 **Tipografía:** una sola familia, **Schibsted Grotesk**, pesos **500** y **800**
 (servida desde el propio sitio: `astro.config.mjs` → `fonts`, variable `--fuente`). Respaldo: `system-ui, sans-serif`.
 
-| Rol | Tamaño | Peso | Otros |
-|---|---|---|---|
-| Título `h1` | `clamp(38px, 11vw, 88px)` | 800 | interlineado .95, tracking -0.035em; celular: máx. 12ch → 2 líneas; escritorio: 1 línea |
-| Títulos de sección `h2` | `clamp(26px, 6.4vw, 44px)` | 800 | tracking -0.03em |
-| Precio | 22px (destacado grande: 30px) | 800 | tracking -0.02em, **sin** `tabular-nums` (deja huecos en la coma) |
-| Nombre del juego | 14px (grande: 18px) | 800 | máximo 2 líneas con `line-clamp`. En 800 porque casi todos los precios son iguales: el nombre es lo que distingue un mosaico de otro. |
-| Nota ("Necesita Ring-Con", "3 versiones · Switch 1 desde"; la edición no se parte de línea) | 13px | 500 | color `--suave` |
-| Pestaña de consola | logo 17px; "2" 17px | 800 | 32px de alto, relleno 0 9px |
-| Sello de versión (juego con versiones) | logo 17px; "2" 17px; "Mejora a" 13px | 800 | 28px de alto, relleno 0 8px, radio 6px; fondo `--suelo` (Switch 2: `--rojo`) |
-| "¿No ves tu juego?" | 22px | 800 | tracking -0.02em |
-| Botones de la barra ("Pedir por WhatsApp") y "Listo" del panel | 15px | 800 | |
-| Título del panel de versiones | 18px | 800 | máximo 2 líneas |
+Cada tamaño es un token `--letra-*` de `:root` (`Layout.astro`); los componentes escriben
+`font-size: var(--letra-…)`, nunca un valor fijo (lo comprueba `tests/tokens.test.ts`). Un token
+nombra un tamaño, no un único uso: varios roles comparten el mismo (p. ej. `--letra-etiqueta`).
+
+| Token | Tamaño | Rol | Peso | Otros |
+|---|---|---|---|---|
+| `--letra-titulo` | `clamp(38px, 11vw, 88px)` | Título `h1` | 800 | interlineado .95, tracking -0.035em; celular: máx. 12ch → 2 líneas; escritorio: 1 línea |
+| `--letra-seccion` | `clamp(26px, 6.4vw, 44px)` | Títulos de sección `h2` | 800 | tracking -0.03em |
+| `--letra-precio-grande` | 30px | Precio del destacado grande | 800 | tracking -0.02em |
+| `--letra-precio` | 22px | Precio; "¿No ves tu juego?" | 800 | tracking -0.02em, **sin** `tabular-nums` (deja huecos en la coma) |
+| `--letra-signo` | 20px | "+" del círculo de 28px | 500 | |
+| `--letra-total` | 19px | Cantidad y total de la barra de pedido | 800 (cantidad: 500, blanco al 70 %) | hasta 420px usa `--letra-etiqueta` |
+| `--letra-nombre-grande` | 18px | Nombre del destacado grande; título del panel de versiones | 800 | máximo 2 líneas |
+| `--letra-etiqueta` | 17px | Nombre de la tienda en la cabecera; logo y "2" de la pestaña de consola y del sello; total de la barra hasta 420px | 800 | pestaña: 32px de alto, relleno 0 9px; sello: 28px de alto, relleno 0 8px, radio 6px, fondo `--suelo` (Switch 2: `--rojo`) |
+| `--letra-flecha` | 16px | "↗" del círculo (abre WhatsApp, sin precio) | 500 | |
+| `--letra-boton` | 15px | "Pedir por WhatsApp", "Listo" del panel; "✓" del círculo | 800 (✓: 500) | |
+| `--letra-nombre` | 14px | Nombre del juego; "Vaciar" | 800 ("Vaciar": 500, blanco al 70 %) | nombre: máximo 2 líneas con `line-clamp`, en 800 porque casi todos los precios son iguales: el nombre es lo que distingue un mosaico de otro |
+| `--letra-nota` | 13px | Nota ("Necesita Ring-Con", "3 versiones · Switch 1 desde"; la edición no se parte de línea); "Mejora a" del sello | 500 (sello: 800) | color `--suave` |
+
+Son 12 tamaños y no se agregan más. Un texto nuevo usa el token de un rol parecido; si ninguno
+sirve, primero se revisa el diseño (§6: "tamaños intermedios nuevos").
 
 ## 3. Retícula
 
@@ -179,7 +188,7 @@ lugar del tablero, lleva la pestaña de su consola. El lector de pantalla la lee
 | Píldoras/etiquetas sobre títulos ("NUEVO", "HOT", "-20%") | Destacar por tamaño. *Decisión abierta D3 en el spec.* La **única** marca sobre la portada es la pestaña de consola. |
 | Letras chiquitas en MAYÚSCULAS con espaciado | Texto normal, legible, en minúsculas con mayúscula inicial. |
 | Monospace, numeración 01/02/03 | Orden por posición y tamaño. |
-| Más de una familia tipográfica, o tamaños intermedios nuevos | La tabla del §2. |
+| Más de una familia tipográfica, o tamaños intermedios nuevos | Los tokens `--letra-*` de la tabla del §2. |
 | Emojis, íconos decorativos, formas de relleno | Una portada real o nada. |
 | Títulos de más de 2 líneas | Recortar palabras; luego ensanchar; el tamaño, al final. |
 | Una palabra del título con otro color o cursiva | Un color, un peso. |

@@ -62,8 +62,8 @@ plantillas de issue (`.github/ISSUE_TEMPLATE/`: «Error» → `bug`, «Solicitud
   de los 3 destacados, que debe quedar en menos de ~300 KB para WhatsApp. `pages/favicon.svg.ts`
   usa la inicial de `tienda.nombre`. Las etiquetas `og:*`/`canonical` de `Layout.astro` solo salen
   si `tienda.url` está lleno.
-- **Estilos:** CSS con alcance por componente. Los tokens de color viven en `:root` de
-  `layouts/Layout.astro`: no agregues colores, sombras, bordes ni tamaños de letra fuera de
+- **Estilos:** CSS con alcance por componente. Los tokens de color y de tamaño de letra (`--letra-*`,
+  comprobados por `tests/tokens.test.ts`) viven en `:root` de `layouts/Layout.astro`: no agregues colores, sombras, bordes ni tamaños de letra fuera de
   `docs/diseno.md` §2. La fuente (Schibsted Grotesk 500/800) se sirve localmente mediante la API
   `fonts` de `astro.config.mjs`, sin Google.
 - **Portadas:** `import.meta.glob` sobre `imagenes/*.{webp,jpg,jpeg,png}`. Astro genera las variantes

@@ -40,8 +40,14 @@ const canonica = Astro.site && new URL(Astro.url.pathname, Astro.site).href;
 	</body>
 </html>
 <style is:global>
-	/* Tokens del diseño (docs/diseno.md §2). Únicos colores permitidos. */
-	:root { --suelo: #e9e9ec; --mosaico: #ffffff; --tinta: #121214; --suave: #5b5b63; --rojo: #e60012; }
+	/* Tokens del diseño (docs/diseno.md §2). Únicos colores y tamaños de letra permitidos. */
+	:root {
+		--suelo: #e9e9ec; --mosaico: #ffffff; --tinta: #121214; --suave: #5b5b63; --rojo: #e60012;
+		--letra-titulo: clamp(38px, 11vw, 88px); --letra-seccion: clamp(26px, 6.4vw, 44px);
+		--letra-precio-grande: 30px; --letra-precio: 22px; --letra-signo: 20px; --letra-total: 19px;
+		--letra-nombre-grande: 18px; --letra-etiqueta: 17px; --letra-flecha: 16px; --letra-boton: 15px;
+		--letra-nombre: 14px; --letra-nota: 13px;
+	}
 	*, *::before, *::after { box-sizing: border-box; }
 	html, body { margin: 0; }
 	body {

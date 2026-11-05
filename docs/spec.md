@@ -404,6 +404,11 @@ Hecho:
       Con todo elegido (37 productos, $ 5.722.300) cabe desde 360 px; a 356 px el botón se salía, así que bajo
       360 px la cantidad se oculta. Pruebas: 24 de lógica (1 nueva) y 21 de navegador (cantidad en el pedido y
       dentro de la barra), más 359 y 360 px a mano. Ver D10 y D11 para lo que quedó sin hacer.
+- [x] **Tamaños de letra como tokens** (misma rama): los 12 tamaños viven en `:root` como `--letra-*`
+      y los componentes solo usan `var(--letra-…)`. La tabla de `diseno.md` §2 suma los que faltaban
+      (nombre de la tienda, total de la barra, "Vaciar", signos +/✓/↗). La página no cambia: capturas
+      a 320, 390 y 1440 px idénticas byte a byte antes y después, y los mismos estilos calculados en
+      los 444 elementos. Nueva prueba `tests/tokens.test.ts` (2) que falla con un `font-size` fijo.
 
 Pendiente de datos del dueño: logo de la tienda (opcional, va en lugar del nombre en `.cabecera`, ver `diseno.md` §7).
 
@@ -544,6 +549,7 @@ La revisión humana de diseño y la prueba en celular real siguen siendo necesar
 | 2026-11-04 | Atribución de Claude desactivada en `.claude/settings.json` del repo (no solo en `~/.claude`) | Lo pidió el dueño. En la nube `~/.claude` se borra al terminar cada sesión; en el repo vale siempre. Se dejan las dos claves: `includeCoAuthoredBy` es la antigua y `attribution` la actual. |
 | 2026-11-05 | Cantidad de productos en la barra de pedido ("3 · $ …"), oculta bajo 360 px | Confirma lo elegido sin abrir WhatsApp, sobre todo con versiones dentro del panel. Mismo trato que "Vaciar": sin colores ni tamaños nuevos. Bajo 360 px se quita, como "Vaciar" bajo 420: el total y el botón son lo esencial. |
 | 2026-11-05 | No se reordenó por saga ni se agregó analítica (D10, D11) | El orden por ranking es decisión del dueño (F1) y medir clics exige una cuenta suya o un servidor. Quedan como decisiones abiertas. |
+| 2026-11-05 | Tamaños de letra como tokens `--letra-*`, nombrados por tamaño compartido y no por cada uso | Antes había 12 tamaños escritos a mano en 4 archivos y la tabla del §2 no listaba 4 usos (nombre de la tienda, total de la barra, "Vaciar", signos del círculo). Con tokens y una prueba, un tamaño nuevo ya no entra sin querer. Un token por uso habría dado ~20 nombres para 12 valores. |
 
 ## 9. Cómo verificar un cambio
 
