@@ -45,6 +45,7 @@ async function comprobarPedido(page: Page, elegidos: Fila[]) {
   const total = elegidos.reduce((suma, p) => suma + precio(p)!, 0);
   await expect(page.locator('#pedido')).toBeVisible();
   await expect(page.locator('#pedido .total')).toHaveText(moneda(total));
+  await expect(page.locator('#pedido .cuenta')).toHaveText(`${elegidos.length} · `);
   // El orden del mensaje puede ser el del tablero; la lista debe ser exacta, sin omisiones ni duplicados.
   const mensaje = comprobarDestino((await page.locator('#pedido .cta').getAttribute('href'))!);
   const [saludo, ...lineas] = mensaje!.split('\n');
@@ -138,7 +139,7 @@ test('panel: versión, total, Escape y devolución del foco', async ({ page }) =
   expect(p).toBeDefined();
   await opcion.press('Space');
   await expect(opcion).toHaveAttribute('aria-pressed', 'true');
-  await expect(dialogo.locator('[data-anuncio]')).toHaveText(`Total del pedido: ${moneda(precio(p)!)}`);
+  await expect(dialogo.locator('[data-anuncio]')).toHaveText(`1 producto. Total del pedido: ${moneda(precio(p)!)}`);
   await page.keyboard.press('Escape');
   await expect(dialogo).toBeHidden();
   await expect(abrir).toBeFocused();
@@ -190,6 +191,9 @@ test('todos los productos: total y botón dentro de la barra', async ({ page }) 
   await comprobarPedido(page, vendibles);
   await contenidoDentro(page.locator('#pedido .cta'), page.locator('#pedido'));
   await contenidoDentro(page.locator('#pedido .total'), page.locator('#pedido'));
+  // Bajo 360px la cantidad se oculta (como "Vaciar") para que quepa el botón.
+  if (page.viewportSize()!.width >= 360) await contenidoDentro(page.locator('#pedido .cuenta'), page.locator('#pedido'));
+  else await expect(page.locator('#pedido .cuenta')).toBeHidden();
   const barra = (await page.locator('#pedido').boundingBox())!;
   expect(barra.x).toBeGreaterThanOrEqual(0);
   expect(barra.x + barra.width).toBeLessThanOrEqual(page.viewportSize()!.width);

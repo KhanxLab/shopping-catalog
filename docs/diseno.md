@@ -140,9 +140,12 @@ Así el respaldo también funciona si el script falla. Si falla `showModal`, se 
   (Listo, Escape o tocar afuera) el foco vuelve al mosaico; con el panel abierto el total se anuncia desde él. El lector de pantalla lee cada fila como
   "Nombre del juego, Nintendo Switch 2, $ …" (el nombre va oculto dentro de la fila).
 - **Al tocar:** `transform: scale(.98)` (150 ms).
-- **Barra de pedido** (`Pedido.astro`): píldora negra fija abajo con el total, "Vaciar" y el
-  botón rojo "Pedir por WhatsApp". Hasta 420px "Vaciar" se oculta (se vacía tocando los
-  mosaicos) para que quepa un total de 7 cifras. Es el **único** elemento con sombra, porque
+- **Barra de pedido** (`Pedido.astro`): píldora negra fija abajo con la cantidad y el total
+  ("3 · $ 489.700"), "Vaciar" y el botón rojo "Pedir por WhatsApp". La cantidad va como "Vaciar":
+  peso 500, blanco al 70 %, mismo tamaño que el total; confirma de un vistazo lo elegido (las versiones
+  están dentro del panel). Hasta 420px "Vaciar" se oculta (se vacía tocando los mosaicos) para que quepa
+  un total de 7 cifras; bajo 360px se oculta también la cantidad (con todo elegido, "37 · $ 5.722.300",
+  el botón se salía de la barra hasta 356px). Es el **único** elemento con sombra, porque
   flota. Aparece con una subida de 250 ms.
 - `prefers-reduced-motion`: se quitan transiciones y la animación de la barra.
 - Foco visible: `outline: 3px solid var(--tinta)` con 2px de separación (global en `Layout.astro`), que queda
@@ -150,13 +153,14 @@ Así el respaldo también funciona si el script falla. Si falla `showModal`, se 
   No usar `currentColor`: en mosaicos con texto blanco el contorno quedaba blanco sobre gris (1,2:1).
 - Mientras la barra de pedido está visible, `scroll-padding-bottom` evita que tape el mosaico con foco.
 - Lector de pantalla: el "+" / "✓" es decorativo (`content: '+' / ''`); el estado lo da `aria-pressed`. Al
-  cambiar el pedido se anuncia "Total del pedido: $ …" desde un párrafo oculto (`#anuncio`), no desde la barra.
+  cambiar el pedido se anuncia "3 productos. Total del pedido: $ …" desde un párrafo oculto (`#anuncio`), no desde la barra.
 
 ## 5. Textos
 
 Todo el texto de la página: nombre de la tienda, **"Códigos para Switch 1 y 2"** (dice que se venden códigos digitales, no juegos físicos), nombres,
 nota, precios, "Mejora a" (sello del paquete de mejora), "N versiones · Switch 1 desde" y "Listo" (juego con versiones, celular), "¿No ves tu juego?", y en la barra "Vaciar" / "Pedir por WhatsApp". Con DLC
-visibles, además "DLC y updates" y "¿Buscas otro DLC?". **No agregar más.**
+visibles, además "DLC y updates" y "¿Buscas otro DLC?". La cantidad de la barra ("3 ·") es una cifra, no
+texto nuevo. **No agregar más.**
 
 **La consola siempre se distingue, con la pestaña y no con texto:** cada mosaico, en cualquier
 lugar del tablero, lleva la pestaña de su consola. El lector de pantalla la lee como
@@ -206,7 +210,7 @@ lugar del tablero, lleva la pestaña de su consola. El lector de pantalla la lee
 - [ ] Ninguna fila del tablero con un hueco mayor a un mosaico.
 - [ ] Todos los precios visibles y sin cortar; nombres largos cortados a 2 líneas con "…".
 - [ ] Seleccionar 2 títulos: se ven en negro con ✓ y la barra muestra el total correcto.
-- [ ] A 320px con todos elegidos, la barra no se desborda.
+- [ ] A 320px con todos elegidos, la barra no se desborda. A 360px con todos elegidos, cabe también la cantidad.
 - [ ] Contraste: blanco sobre `--rojo` (4.8:1), `--suave` sobre blanco (6.7:1) y `#b9b9c2` sobre `--tinta` (9.6:1) cumplen AA.
 - [ ] Con Tab: el contorno de foco se ve en mosaicos blancos, elegidos y rojos, y ninguno queda bajo la barra.
 - [ ] Ningún elemento de la tabla "No hacer" del §6.

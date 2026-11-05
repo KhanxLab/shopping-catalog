@@ -19,9 +19,9 @@ function iniciar(guardado: string | null, bloqueado = false) {
     getAttribute: (k: string) => atributos.get(k),
     addEventListener: (k: string, fn: (e: { preventDefault(): void }) => void) => eventos.set(k, fn),
   };
-  const total = { textContent: '' }, cta = { href: '' }, anuncio = { textContent: '' };
+  const total = { textContent: '' }, cuenta = { textContent: '' }, cta = { href: '' }, anuncio = { textContent: '' };
   const vaciar = { addEventListener() {} };
-  const partes: Record<string, unknown> = { '.total': total, '.cta': cta, '.vaciar': vaciar };
+  const partes: Record<string, unknown> = { '.total': total, '.cuenta': cuenta, '.cta': cta, '.vaciar': vaciar };
   const bar = { dataset: { locale: 'es-CO', moneda: 'COP', wa: '573058147293' }, hidden: true, querySelector: (s: string) => partes[s] };
   runInNewContext(script, {
     document: {
@@ -35,7 +35,7 @@ function iniciar(guardado: string | null, bloqueado = false) {
     },
     Intl,
   });
-  return { bar, total, cta, atributos, eventos, persistido: () => persistido };
+  return { bar, total, cuenta, cta, anuncio, atributos, eventos, persistido: () => persistido };
 }
 
 for (const valor of ['null', '{}', '42', 'true', '"juego"', '{malformado', null]) {
@@ -64,4 +64,13 @@ test('el almacenamiento bloqueado no impide seleccionar ni quitar (#19)', () => 
   assert.equal(p.bar.hidden, false);
   p.eventos.get('click')!({ preventDefault() {} });
   assert.equal(p.bar.hidden, true);
+});
+
+test('la barra muestra cuántos productos van y el anuncio los dice', () => {
+  const p = iniciar(null);
+  p.eventos.get('click')!({ preventDefault() {} });
+  assert.equal(p.cuenta.textContent, '1 · ');
+  assert.match(p.anuncio.textContent, /^1 producto\. Total del pedido: .*239\.900$/);
+  p.eventos.get('click')!({ preventDefault() {} });
+  assert.equal(p.anuncio.textContent, 'Pedido vacío');
 });

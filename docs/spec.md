@@ -51,7 +51,7 @@ en menos de 30 segundos.
   En celular y escritorio el mosaico es de tamaño normal ("3 versiones · Switch 1 desde $ …") y al tocarlo las
   versiones se eligen en un panel (abajo en celular, centrado en escritorio); sin JavaScript se ven en el mosaico.
 - **F2. Arma tu pedido:** cada precio lleva un "+"; tocar el mosaico lo marca (✓) y lo suma
-  a una barra fija inferior ("$ 1.648 · Vaciar · Pedir por WhatsApp"). El "+" sustituye al
+  a una barra fija inferior ("2 · $ 1.648 · Vaciar · Pedir por WhatsApp"; la cantidad se oculta bajo 360 px). El "+" sustituye al
   texto de ayuda. El botón envía un solo mensaje:
   ```
   Hola, quiero pedir:
@@ -399,6 +399,11 @@ Hecho:
       según ese campo y lo cambia si se edita. Probado el lector del campo con 5 cuerpos de ejemplo
       (P1/P2, saltos de línea de Windows, sin respuesta, issue sin plantilla, encabezado parecido).
       Los 11 issues abiertos ya tienen tipo y prioridad (puestos a mano).
+- [x] **Cantidad en la barra de pedido** (rama `claude/design-system-extraction-g0wbbg`): "3 · $ 489.700",
+      la cifra en 500 y blanco al 70 % (igual que "Vaciar"); el anuncio dice "3 productos. Total del pedido: $ …".
+      Con todo elegido (37 productos, $ 5.722.300) cabe desde 360 px; a 356 px el botón se salía, así que bajo
+      360 px la cantidad se oculta. Pruebas: 24 de lógica (1 nueva) y 21 de navegador (cantidad en el pedido y
+      dentro de la barra), más 359 y 360 px a mano. Ver D10 y D11 para lo que quedó sin hacer.
 
 Pendiente de datos del dueño: logo de la tienda (opcional, va en lugar del nombre en `.cabecera`, ver `diseno.md` §7).
 
@@ -431,6 +436,8 @@ Pendiente de datos del dueño: logo de la tienda (opcional, va en lugar del nomb
 | D6 | ¿Marcar los juegos de Switch 1 como "Switch 1 y 2"? (casi todos corren en Switch 2) | No: van en la sección "Switch 1", tal como dice `plataforma`. |
 | D7 | Ring Fit Adventure no tiene precio digital y necesita el accesorio Ring-Con. ¿Se vende? | Se muestra con "Consultar" y abre WhatsApp para preguntar; no entra al pedido. |
 | D9 | Logos oficiales de Switch y Switch 2, y permiso para usarlos | Ícono de Simple Icons; Switch 2 compuesto (ícono + "2"). Pedir los archivos al distribuidor y confirmar que la tienda puede mostrarlos. |
+| D10 | ¿Agrupar los juegos por saga (Zelda, Mario, Pokémon…)? | No. Hoy van por `puesto_ranking` (lo más vendido primero, F1). Opción sin perder eso: un campo opcional `saga` en `productos.json` y cada saga junta en el lugar de su juego mejor ubicado (Pokémon, 10 títulos, en el puesto 6). Cambia F1: lo decide el dueño. |
+| D11 | ¿Medir cuántas visitas terminan en "Pedir por WhatsApp"? | No se mide. Cloudflare Web Analytics solo cuenta visitas, no clics. Para contar clics sin cookies hace falta una cuenta del dueño en un servicio con eventos (ej. GoatCounter) o un Worker propio, que rompe el sitio 100 % estático. |
 | D8 | ¿Qué títulos van destacados? | Pedido del dueño: Zelda: Ocarina of Time (Switch 2) como estelar, en lugar de Mario Kart World (vuelve al catálogo); siguen Super Mario Bros. Wonder y Zelda: Tears of the Kingdom. |
 
 ## 8. Registro de decisiones
@@ -535,6 +542,8 @@ La revisión humana de diseño y la prueba en celular real siguen siendo necesar
 | 2026-11-04 | #27: portada del mosaico con versiones = imagen general del grupo o, si no hay, la de la edición del "desde"; la línea nombra esa edición ("Switch 1 desde") | La caja de Switch 2 junto a un precio de Switch 1 hacía esperar el juego de Switch 2 a ese precio. Sin imagen de esa edición queda gris en vez de usar la de otra. La portada general va en `grupos` (raíz del JSON) y no en una fila, porque es del juego, no de una versión. |
 | 2026-11-04 | #27: miniatura de 96 px por edición, solo en el panel, con el sello encima como la pestaña | Asocia cada caja con su precio donde se elige. Junto al sello no cabía a 320 px (332 px de fila en 288); encima, la fila mide lo mismo que hoy. En el mosaico y sin JavaScript no se muestran: no hay sitio y las portadas siguen siendo protagonistas. |
 | 2026-11-04 | Atribución de Claude desactivada en `.claude/settings.json` del repo (no solo en `~/.claude`) | Lo pidió el dueño. En la nube `~/.claude` se borra al terminar cada sesión; en el repo vale siempre. Se dejan las dos claves: `includeCoAuthoredBy` es la antigua y `attribution` la actual. |
+| 2026-11-05 | Cantidad de productos en la barra de pedido ("3 · $ …"), oculta bajo 360 px | Confirma lo elegido sin abrir WhatsApp, sobre todo con versiones dentro del panel. Mismo trato que "Vaciar": sin colores ni tamaños nuevos. Bajo 360 px se quita, como "Vaciar" bajo 420: el total y el botón son lo esencial. |
+| 2026-11-05 | No se reordenó por saga ni se agregó analítica (D10, D11) | El orden por ranking es decisión del dueño (F1) y medir clics exige una cuenta suya o un servidor. Quedan como decisiones abiertas. |
 
 ## 9. Cómo verificar un cambio
 
